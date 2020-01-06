@@ -167,6 +167,10 @@
             },
             css:function (_uri) {
                 _doLoadStyle(_uri);
+            },
+            res:function(_uri) {
+                __scache[_uri] = 2;
+                __rcache[_uri] = _uri;
             }
         };
         return function(_uri){
@@ -539,10 +543,16 @@
             var _code = _script.innerHTML;
             return _code.search(_reg)>=0;
         };
+        var _isNEJTemplate = function(type){
+            return (type||'').search(/^nej\//i)===0;
+        };
         return function(){
             var _list = d.getElementsByTagName('script');
             for(var i=_list.length-1,_script;i>=0;i--){
                 _script = _list[i];
+                if (_isNEJTemplate(_script.type)){
+                    continue;
+                }
                 if (!_script.xxx){
                     _script.xxx = !0;
                     if (!_script.src&&_isNEJInline(_script)){

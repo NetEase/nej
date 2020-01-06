@@ -711,8 +711,11 @@ NEJ.define([
             _reg2 = /[#\?]/,
             _base = location.href.split(/[?#]/)[0],
             _anchor = document.createElement('a');
+        // fix for relative protocol, e.g //a.b.com/a
         var _isAbsolute = function(_uri){
-            return (_uri||'').indexOf('://')>0;
+            _uri = _uri||'';
+            return _uri.indexOf('://')>0||
+                   _uri.indexOf('//')===0;
         };
         var _doFormat = function(_uri){
             return (_uri||'').split(_reg2)[0]
@@ -728,16 +731,22 @@ NEJ.define([
         _base = _doFormat(_base);
         return function(_uri,_root){
             _uri = (_uri||'').trim();
+            // check url
             if (!_isAbsolute(_root))
                 _root = _base;
             if (!_uri) return _root;
+            // fix relative protocol error
+            if (_uri.indexOf('//')===0){
+                var arr = _root.split(':');
+                _uri = arr[0]+':'+_uri;
+            }
             if (_isAbsolute(_uri))
                 return _uri;
             _uri = _doMergeURI(_uri,_root);
             _anchor.href = _uri;
             _uri = _anchor.href;
             return _isAbsolute(_uri) ? _uri :
-                   _anchor.getAttribute('href',4); // ie6/7
+                _anchor.getAttribute('href',4); // ie6/7;
         };
     })();
     /**
@@ -763,7 +772,13 @@ NEJ.define([
     _p._$url2origin = (function(){
         var _reg = /^([\w]+?:\/\/.*?(?=\/|$))/i;
         return function(_url){
-            if (_reg.test(_url||''))
+            _url = _url||'';
+            // fix relative protocol
+            if (_url.indexOf('//')===0){
+                _url = location.protocol+_url;
+            }
+            // dump origin
+            if (_reg.test(_url))
                 return RegExp.$1.toLowerCase();
             return '';
         };

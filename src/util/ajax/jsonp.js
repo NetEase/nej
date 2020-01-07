@@ -42,7 +42,7 @@ NEJ.define([
         var merge = function (url, data, callback) {
             url += (url.indexOf('?')<0?'?':'&')
                 +  'callback='+callback;
-            if (!!data){
+            if (data){
                 if (u._$isObject(data)){
                     data = u._$object2query(data);
                 }
@@ -54,7 +54,7 @@ NEJ.define([
             var sn = u._$uniqueID(),
                 cb = 'cb_'+sn,
                 url = merge(url, options.data, cb);
-            if (!!options.onload){
+            if (options.onload){
                 window[cb] = function (result) {
                     options.onload(result);
                     u._$safeDelete(window,cb);
